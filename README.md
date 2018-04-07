@@ -4,7 +4,7 @@
 
 <img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="100">
 
-----
+-----
 
 Kubernetes is an open source system for managing [containerized applications]
 across multiple hosts, providing basic mechanisms for deployment, maintenance,
