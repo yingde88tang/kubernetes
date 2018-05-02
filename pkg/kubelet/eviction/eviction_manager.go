@@ -311,18 +311,24 @@ func (m *managerImpl) synchronize(diskInfoProvider DiskInfoProvider, podFunc Act
 	m.lastObservations = observations
 	m.Unlock()
 
+	evictPods := []*v1.Pod{}
+
 	// evict pods if there is a resource usage violation from local volume temporary storage
 	// If eviction happens in localVolumeEviction function, skip the rest of eviction action
 	if utilfeature.DefaultFeatureGate.Enabled(features.LocalStorageCapacityIsolation) {
 		if evictedPods := m.localStorageEviction(activePods); len(evictedPods) > 0 {
-			return evictedPods
+			evictPods = append(evictPods, evictedPods...)
 		}
 	}
 
 	if utilfeature.DefaultFeatureGate.Enabled(features.DevicePlugins) {
 		if evictedPods := m.nvidiaGPUEviction(activePods); len(evictedPods) > 0 {
-			return evictedPods
+			evictPods = append(evictPods, evictedPods...)
 		}
+	}
+
+	if len(evictPods) > 0 {
+		return evictPods
 	}
 
 	// determine the set of resources under starvation
